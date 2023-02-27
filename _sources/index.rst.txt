@@ -13,7 +13,7 @@ OpenQASM |version| Specification
   :caption: All Versions
 
   Live <https://openqasm.github.io/index.html>
-  3.1 <https://openqasm.github.io/versions/3.1/index.html>
+  3.1 <https://mbhealy.github.io/versions/3.1/index.html>
 
 Bibliography
 ============
