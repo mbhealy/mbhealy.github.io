@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OpenQasm 3.0 Grammar &#8212; OpenQASM Live Specification  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/colors.css?v=3aae764c" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release Notes" href="../release_notes.html" />
+    <link rel="prev" title="OpenPulse Grammar" href="../language/openpulse.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="openqasm-3-0-grammar">
+<h1>OpenQasm 3.0 Grammar<a class="headerlink" href="#openqasm-3-0-grammar" title="Permalink to this heading">¶</a></h1>
+<p>OpenQasm 3.0 Grammar specification based in <a class="reference external" href="https://www.antlr.org/">ANTLR</a> parser generator.</p>
+<p>The ANTLR grammar is intended to serve as the official reference grammar for OpenQASM3 and defines
+the set of syntactically valid statements in the language. ANTLR is used because it provides a
+human-readable EBNF format that is computer-validatable. It provides an auto-generated parser that is
+used to validate the example files (see <cite>openqasm/examples/</cite>). As an extension, it can be used
+to check whether a source file is parseable OpenQASM3 (note this does not ensure that the OpenQASM3 is semantically correct).</p>
+<p>The ANTLR parser does not attempt to be performant or construct
+an AST. Furthermore, it does not conduct any semantic analysis.</p>
+<p>The ANTLR grammar may serve as a guide when developing compiler tooling for OpenQASM3.</p>
+<div class="highlight-antlr notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span>parser grammar qasm3Parser;
+<span class="linenos">  2</span>
+<span class="linenos">  3</span>options {
+<span class="linenos">  4</span>    tokenVocab = qasm3Lexer;
+<span class="linenos">  5</span>}
+<span class="linenos">  6</span>
+<span class="linenos">  7</span>program: version? statementOrScope* EOF;
+<span class="linenos">  8</span>version: OPENQASM VersionSpecifier SEMICOLON;
+<span class="linenos">  9</span>
+<span class="linenos"> 10</span>// A statement is any valid single statement of an OpenQASM 3 program, with the
+<span class="linenos"> 11</span>// exception of the version-definition statement (which must be unique, and the
+<span class="linenos"> 12</span>// first statement of the file if present).  This file just defines rules for
+<span class="linenos"> 13</span>// parsing; we leave semantic analysis and rejection of invalid scopes for
+<span class="linenos"> 14</span>// compiler implementations.
+<span class="linenos"> 15</span>statement:
+<span class="linenos"> 16</span>    pragma
+<span class="linenos"> 17</span>    // All the actual statements of the language.
+<span class="linenos"> 18</span>    | annotation* (
+<span class="linenos"> 19</span>        aliasDeclarationStatement
+<span class="linenos"> 20</span>        | assignmentStatement
+<span class="linenos"> 21</span>        | barrierStatement
+<span class="linenos"> 22</span>        | boxStatement
+<span class="linenos"> 23</span>        | breakStatement
+<span class="linenos"> 24</span>        | calStatement
+<span class="linenos"> 25</span>        | calibrationGrammarStatement
+<span class="linenos"> 26</span>        | classicalDeclarationStatement
+<span class="linenos"> 27</span>        | constDeclarationStatement
+<span class="linenos"> 28</span>        | continueStatement
+<span class="linenos"> 29</span>        | defStatement
+<span class="linenos"> 30</span>        | defcalStatement
+<span class="linenos"> 31</span>        | delayStatement
+<span class="linenos"> 32</span>        | endStatement
+<span class="linenos"> 33</span>        | expressionStatement
+<span class="linenos"> 34</span>        | externStatement
+<span class="linenos"> 35</span>        | forStatement
+<span class="linenos"> 36</span>        | gateCallStatement
+<span class="linenos"> 37</span>        | gateStatement
+<span class="linenos"> 38</span>        | ifStatement
+<span class="linenos"> 39</span>        | includeStatement
+<span class="linenos"> 40</span>        | ioDeclarationStatement
+<span class="linenos"> 41</span>        | measureArrowAssignmentStatement
+<span class="linenos"> 42</span>        | oldStyleDeclarationStatement
+<span class="linenos"> 43</span>        | quantumDeclarationStatement
+<span class="linenos"> 44</span>        | resetStatement
+<span class="linenos"> 45</span>        | returnStatement
+<span class="linenos"> 46</span>        | switchStatement
+<span class="linenos"> 47</span>        | whileStatement
+<span class="linenos"> 48</span>    )
+<span class="linenos"> 49</span>;
+<span class="linenos"> 50</span>annotation: AnnotationKeyword RemainingLineContent?;
+<span class="linenos"> 51</span>scope: LBRACE statementOrScope* RBRACE;
+<span class="linenos"> 52</span>pragma: PRAGMA RemainingLineContent;
+<span class="linenos"> 53</span>
+<span class="linenos"> 54</span>statementOrScope: statement | scope;
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span>
+<span class="linenos"> 57</span>/* Start top-level statement definitions. */
+<span class="linenos"> 58</span>
+<span class="linenos"> 59</span>// Inclusion statements.
+<span class="linenos"> 60</span>calibrationGrammarStatement: DEFCALGRAMMAR StringLiteral SEMICOLON;
+<span class="linenos"> 61</span>includeStatement: INCLUDE StringLiteral SEMICOLON;
+<span class="linenos"> 62</span>
+<span class="linenos"> 63</span>// Control-flow statements.
+<span class="linenos"> 64</span>breakStatement: BREAK SEMICOLON;
+<span class="linenos"> 65</span>continueStatement: CONTINUE SEMICOLON;
+<span class="linenos"> 66</span>endStatement: END SEMICOLON;
+<span class="linenos"> 67</span>forStatement: FOR scalarType Identifier IN (setExpression | LBRACKET rangeExpression RBRACKET | expression) body=statementOrScope;
+<span class="linenos"> 68</span>ifStatement: IF LPAREN expression RPAREN if_body=statementOrScope (ELSE else_body=statementOrScope)?;
+<span class="linenos"> 69</span>returnStatement: RETURN (expression | measureExpression)? SEMICOLON;
+<span class="linenos"> 70</span>whileStatement: WHILE LPAREN expression RPAREN body=statementOrScope;
+<span class="linenos"> 71</span>switchStatement: SWITCH LPAREN expression RPAREN LBRACE switchCaseItem* RBRACE;
+<span class="linenos"> 72</span>switchCaseItem:
+<span class="linenos"> 73</span>    CASE expressionList scope
+<span class="linenos"> 74</span>    | DEFAULT scope
+<span class="linenos"> 75</span>;
+<span class="linenos"> 76</span>
+<span class="linenos"> 77</span>// Quantum directive statements.
+<span class="linenos"> 78</span>barrierStatement: BARRIER gateOperandList? SEMICOLON;
+<span class="linenos"> 79</span>boxStatement: BOX designator? scope;
+<span class="linenos"> 80</span>delayStatement: DELAY designator gateOperandList? SEMICOLON;
+<span class="linenos"> 81</span>/* `gateCallStatement`  is split in two to avoid a potential ambiguity with an
+<span class="linenos"> 82</span> * `expressionStatement` that consists of a single function call.  The only
+<span class="linenos"> 83</span> * &quot;gate&quot; that can have no operands is `gphase` with no control modifiers, and
+<span class="linenos"> 84</span> * `gphase(pi);` looks grammatically identical to `fn(pi);`.  We disambiguate by
+<span class="linenos"> 85</span> * having `gphase` be its own token, and requiring that all other gate calls
+<span class="linenos"> 86</span> * grammatically have at least one qubit.  Strictly, as long as `gphase` is a
+<span class="linenos"> 87</span> * separate token, ANTLR can disambiguate the statements by the definition
+<span class="linenos"> 88</span> * order, but this is more robust. */
+<span class="linenos"> 89</span>gateCallStatement:
+<span class="linenos"> 90</span>    gateModifier* Identifier (LPAREN expressionList? RPAREN)? designator? gateOperandList SEMICOLON
+<span class="linenos"> 91</span>    | gateModifier* GPHASE (LPAREN expressionList? RPAREN)? designator? gateOperandList? SEMICOLON
+<span class="linenos"> 92</span>;
+<span class="linenos"> 93</span>// measureArrowAssignmentStatement also permits the case of not assigning the
+<span class="linenos"> 94</span>// result to any classical value too.
+<span class="linenos"> 95</span>measureArrowAssignmentStatement: measureExpression (ARROW indexedIdentifier)? SEMICOLON;
+<span class="linenos"> 96</span>resetStatement: RESET gateOperand SEMICOLON;
+<span class="linenos"> 97</span>
+<span class="linenos"> 98</span>// Primitive declaration statements.
+<span class="linenos"> 99</span>aliasDeclarationStatement: LET Identifier EQUALS aliasExpression SEMICOLON;
+<span class="linenos">100</span>classicalDeclarationStatement: (scalarType | arrayType) Identifier (EQUALS declarationExpression)? SEMICOLON;
+<span class="linenos">101</span>constDeclarationStatement: CONST scalarType Identifier EQUALS declarationExpression SEMICOLON;
+<span class="linenos">102</span>ioDeclarationStatement: (INPUT | OUTPUT) (scalarType | arrayType) Identifier SEMICOLON;
+<span class="linenos">103</span>oldStyleDeclarationStatement: (CREG | QREG) Identifier designator? SEMICOLON;
+<span class="linenos">104</span>quantumDeclarationStatement: qubitType Identifier SEMICOLON;
+<span class="linenos">105</span>
+<span class="linenos">106</span>// Declarations and definitions of higher-order objects.
+<span class="linenos">107</span>defStatement: DEF Identifier LPAREN argumentDefinitionList? RPAREN returnSignature? scope;
+<span class="linenos">108</span>externStatement: EXTERN Identifier LPAREN externArgumentList? RPAREN returnSignature? SEMICOLON;
+<span class="linenos">109</span>gateStatement: GATE Identifier (LPAREN params=identifierList? RPAREN)? qubits=identifierList scope;
+<span class="linenos">110</span>
+<span class="linenos">111</span>// Non-declaration assignments and calculations.
+<span class="linenos">112</span>assignmentStatement: indexedIdentifier op=(EQUALS | CompoundAssignmentOperator) (expression | measureExpression) SEMICOLON;
+<span class="linenos">113</span>expressionStatement: expression SEMICOLON;
+<span class="linenos">114</span>
+<span class="linenos">115</span>// Statements where the bulk is in the calibration language.
+<span class="linenos">116</span>calStatement: CAL LBRACE CalibrationBlock? RBRACE;
+<span class="linenos">117</span>defcalStatement: DEFCAL defcalTarget (LPAREN defcalArgumentDefinitionList? RPAREN)? defcalOperandList returnSignature? LBRACE CalibrationBlock? RBRACE;
+<span class="linenos">118</span>
+<span class="linenos">119</span>
+<span class="linenos">120</span>/* End top-level statement definitions. */
+<span class="linenos">121</span>/* Start expression definitions. */
+<span class="linenos">122</span>
+<span class="linenos">123</span>
+<span class="linenos">124</span>// ANTLR4 can handle direct left-recursive rules, and ambiguities are guaranteed
+<span class="linenos">125</span>// to resolve in the order of definition.  This means that the order of rules
+<span class="linenos">126</span>// here defines the precedence table, from most tightly binding to least.
+<span class="linenos">127</span>expression:
+<span class="linenos">128</span>    LPAREN expression RPAREN                                  # parenthesisExpression
+<span class="linenos">129</span>    | expression indexOperator                                # indexExpression
+<span class="linenos">130</span>    | &lt;assoc=right&gt; expression op=DOUBLE_ASTERISK expression  # powerExpression
+<span class="linenos">131</span>    | op=(TILDE | EXCLAMATION_POINT | MINUS) expression       # unaryExpression
+<span class="linenos">132</span>    | expression op=(ASTERISK | SLASH | PERCENT) expression   # multiplicativeExpression
+<span class="linenos">133</span>    | expression op=(PLUS | MINUS) expression                 # additiveExpression
+<span class="linenos">134</span>    | expression op=BitshiftOperator expression               # bitshiftExpression
+<span class="linenos">135</span>    | expression op=ComparisonOperator expression             # comparisonExpression
+<span class="linenos">136</span>    | expression op=EqualityOperator expression               # equalityExpression
+<span class="linenos">137</span>    | expression op=AMPERSAND expression                      # bitwiseAndExpression
+<span class="linenos">138</span>    | expression op=CARET expression                          # bitwiseXorExpression
+<span class="linenos">139</span>    | expression op=PIPE expression                           # bitwiseOrExpression
+<span class="linenos">140</span>    | expression op=DOUBLE_AMPERSAND expression               # logicalAndExpression
+<span class="linenos">141</span>    | expression op=DOUBLE_PIPE expression                    # logicalOrExpression
+<span class="linenos">142</span>    | (scalarType | arrayType) LPAREN expression RPAREN       # castExpression
+<span class="linenos">143</span>    | DURATIONOF LPAREN scope RPAREN                          # durationofExpression
+<span class="linenos">144</span>    | Identifier LPAREN expressionList? RPAREN                # callExpression
+<span class="linenos">145</span>    | (
+<span class="linenos">146</span>        Identifier
+<span class="linenos">147</span>        | BinaryIntegerLiteral
+<span class="linenos">148</span>        | OctalIntegerLiteral
+<span class="linenos">149</span>        | DecimalIntegerLiteral
+<span class="linenos">150</span>        | HexIntegerLiteral
+<span class="linenos">151</span>        | FloatLiteral
+<span class="linenos">152</span>        | ImaginaryLiteral
+<span class="linenos">153</span>        | BooleanLiteral
+<span class="linenos">154</span>        | BitstringLiteral
+<span class="linenos">155</span>        | TimingLiteral
+<span class="linenos">156</span>        | HardwareQubit
+<span class="linenos">157</span>      )                                                       # literalExpression
+<span class="linenos">158</span>;
+<span class="linenos">159</span>
+<span class="linenos">160</span>// Special-case expressions that are only valid in certain contexts.  These are
+<span class="linenos">161</span>// not in the expression tree, but can contain elements that are within it.
+<span class="linenos">162</span>aliasExpression: expression (DOUBLE_PLUS expression)*;
+<span class="linenos">163</span>declarationExpression: arrayLiteral | expression | measureExpression;
+<span class="linenos">164</span>measureExpression: MEASURE gateOperand;
+<span class="linenos">165</span>rangeExpression: expression? COLON expression? (COLON expression)?;
+<span class="linenos">166</span>setExpression: LBRACE expression (COMMA expression)* COMMA? RBRACE;
+<span class="linenos">167</span>arrayLiteral: LBRACE (expression | arrayLiteral) (COMMA (expression | arrayLiteral))* COMMA? RBRACE;
+<span class="linenos">168</span>
+<span class="linenos">169</span>// The general form is a comma-separated list of indexing entities.
+<span class="linenos">170</span>// `setExpression` is only valid when being used as a single index: registers
+<span class="linenos">171</span>// can support it for creating aliases, but arrays cannot.
+<span class="linenos">172</span>indexOperator:
+<span class="linenos">173</span>    LBRACKET
+<span class="linenos">174</span>    (
+<span class="linenos">175</span>        setExpression
+<span class="linenos">176</span>        | (expression | rangeExpression) (COMMA (expression | rangeExpression))* COMMA?
+<span class="linenos">177</span>    )
+<span class="linenos">178</span>    RBRACKET;
+<span class="linenos">179</span>// Alternative form to `indexExpression` for cases where an obvious l-value is
+<span class="linenos">180</span>// better grammatically than a generic expression.  Some current uses of this
+<span class="linenos">181</span>// rule may be better as `expression`, leaving the semantic analysis to later
+<span class="linenos">182</span>// (for example in gate calls).
+<span class="linenos">183</span>indexedIdentifier: Identifier indexOperator*;
+<span class="linenos">184</span>
+<span class="linenos">185</span>/* End expression definitions. */
+<span class="linenos">186</span>/* Start type definitions. */
+<span class="linenos">187</span>
+<span class="linenos">188</span>returnSignature: ARROW scalarType;
+<span class="linenos">189</span>gateModifier: (
+<span class="linenos">190</span>    INV
+<span class="linenos">191</span>    | POW LPAREN expression RPAREN
+<span class="linenos">192</span>    | (CTRL | NEGCTRL) (LPAREN expression RPAREN)?
+<span class="linenos">193</span>) AT;
+<span class="linenos">194</span>
+<span class="linenos">195</span>scalarType:
+<span class="linenos">196</span>    BIT designator?
+<span class="linenos">197</span>    | INT designator?
+<span class="linenos">198</span>    | UINT designator?
+<span class="linenos">199</span>    | FLOAT designator?
+<span class="linenos">200</span>    | ANGLE designator?
+<span class="linenos">201</span>    | BOOL
+<span class="linenos">202</span>    | DURATION
+<span class="linenos">203</span>    | STRETCH
+<span class="linenos">204</span>    | COMPLEX (LBRACKET scalarType RBRACKET)?
+<span class="linenos">205</span>;
+<span class="linenos">206</span>qubitType: QUBIT designator?;
+<span class="linenos">207</span>arrayType: ARRAY LBRACKET scalarType COMMA expressionList RBRACKET;
+<span class="linenos">208</span>arrayReferenceType: (READONLY | MUTABLE) ARRAY LBRACKET scalarType COMMA (expressionList | DIM EQUALS expression) RBRACKET;
+<span class="linenos">209</span>
+<span class="linenos">210</span>designator: LBRACKET expression RBRACKET;
+<span class="linenos">211</span>
+<span class="linenos">212</span>defcalTarget: MEASURE | RESET | DELAY | Identifier;
+<span class="linenos">213</span>defcalArgumentDefinition: expression | argumentDefinition;
+<span class="linenos">214</span>defcalOperand: HardwareQubit | Identifier;
+<span class="linenos">215</span>gateOperand: indexedIdentifier | HardwareQubit;
+<span class="linenos">216</span>externArgument: scalarType | arrayReferenceType | CREG designator?;
+<span class="linenos">217</span>argumentDefinition:
+<span class="linenos">218</span>    scalarType Identifier
+<span class="linenos">219</span>    | qubitType Identifier
+<span class="linenos">220</span>    | (CREG | QREG) Identifier designator?
+<span class="linenos">221</span>    | arrayReferenceType Identifier
+<span class="linenos">222</span>;
+<span class="linenos">223</span>
+<span class="linenos">224</span>argumentDefinitionList: argumentDefinition (COMMA argumentDefinition)* COMMA?;
+<span class="linenos">225</span>defcalArgumentDefinitionList: defcalArgumentDefinition (COMMA defcalArgumentDefinition)* COMMA?;
+<span class="linenos">226</span>defcalOperandList: defcalOperand (COMMA defcalOperand)* COMMA?;
+<span class="linenos">227</span>expressionList: expression (COMMA expression)* COMMA?;
+<span class="linenos">228</span>identifierList: Identifier (COMMA Identifier)* COMMA?;
+<span class="linenos">229</span>gateOperandList: gateOperand (COMMA gateOperand)* COMMA?;
+<span class="linenos">230</span>externArgumentList: externArgument (COMMA externArgument)* COMMA?;
+</pre></div>
+</div>
+<div class="highlight-antlr notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span>lexer grammar qasm3Lexer;
+<span class="linenos">  2</span>
+<span class="linenos">  3</span>/* Naming conventions in this lexer grammar
+<span class="linenos">  4</span> *
+<span class="linenos">  5</span> * - Keywords and exact symbols that have only one possible value are written in
+<span class="linenos">  6</span> *   all caps.  There is no more information in the parsed text than in the name
+<span class="linenos">  7</span> *   of the lexeme.  For example, `INCLUDE` is only ever the string `&#39;include&#39;`.
+<span class="linenos">  8</span> *
+<span class="linenos">  9</span> * - Lexemes with information in the string form are in PascalCase.  This
+<span class="linenos"> 10</span> *   indicates there is more information in the token than just the name.  For
+<span class="linenos"> 11</span> *   example, `Identifier` has a payload containing the name of the identifier.
+<span class="linenos"> 12</span> */
+<span class="linenos"> 13</span>
+<span class="linenos"> 14</span>/* Language keywords. */
+<span class="linenos"> 15</span>
+<span class="linenos"> 16</span>OPENQASM: &#39;OPENQASM&#39; -&gt; pushMode(VERSION_IDENTIFIER);
+<span class="linenos"> 17</span>INCLUDE: &#39;include&#39; -&gt; pushMode(ARBITRARY_STRING);
+<span class="linenos"> 18</span>DEFCALGRAMMAR: &#39;defcalgrammar&#39; -&gt; pushMode(ARBITRARY_STRING);
+<span class="linenos"> 19</span>DEF: &#39;def&#39;;
+<span class="linenos"> 20</span>CAL: &#39;cal&#39; -&gt; mode(CAL_PRELUDE);
+<span class="linenos"> 21</span>DEFCAL: &#39;defcal&#39; -&gt; mode(DEFCAL_PRELUDE);
+<span class="linenos"> 22</span>GATE: &#39;gate&#39;;
+<span class="linenos"> 23</span>EXTERN: &#39;extern&#39;;
+<span class="linenos"> 24</span>BOX: &#39;box&#39;;
+<span class="linenos"> 25</span>LET: &#39;let&#39;;
+<span class="linenos"> 26</span>
+<span class="linenos"> 27</span>BREAK: &#39;break&#39;;
+<span class="linenos"> 28</span>CONTINUE: &#39;continue&#39;;
+<span class="linenos"> 29</span>IF: &#39;if&#39;;
+<span class="linenos"> 30</span>ELSE: &#39;else&#39;;
+<span class="linenos"> 31</span>END: &#39;end&#39;;
+<span class="linenos"> 32</span>RETURN: &#39;return&#39;;
+<span class="linenos"> 33</span>FOR: &#39;for&#39;;
+<span class="linenos"> 34</span>WHILE: &#39;while&#39;;
+<span class="linenos"> 35</span>IN: &#39;in&#39;;
+<span class="linenos"> 36</span>SWITCH: &#39;switch&#39;;
+<span class="linenos"> 37</span>CASE: &#39;case&#39;;
+<span class="linenos"> 38</span>DEFAULT: &#39;default&#39;;
+<span class="linenos"> 39</span>
+<span class="linenos"> 40</span>PRAGMA: &#39;#&#39;? &#39;pragma&#39; -&gt; pushMode(EAT_TO_LINE_END);
+<span class="linenos"> 41</span>AnnotationKeyword: &#39;@&#39; Identifier -&gt;  pushMode(EAT_TO_LINE_END);
+<span class="linenos"> 42</span>
+<span class="linenos"> 43</span>
+<span class="linenos"> 44</span>/* Types. */
+<span class="linenos"> 45</span>
+<span class="linenos"> 46</span>INPUT: &#39;input&#39;;
+<span class="linenos"> 47</span>OUTPUT: &#39;output&#39;;
+<span class="linenos"> 48</span>CONST: &#39;const&#39;;
+<span class="linenos"> 49</span>READONLY: &#39;readonly&#39;;
+<span class="linenos"> 50</span>MUTABLE: &#39;mutable&#39;;
+<span class="linenos"> 51</span>
+<span class="linenos"> 52</span>QREG: &#39;qreg&#39;;
+<span class="linenos"> 53</span>QUBIT: &#39;qubit&#39;;
+<span class="linenos"> 54</span>
+<span class="linenos"> 55</span>CREG: &#39;creg&#39;;
+<span class="linenos"> 56</span>BOOL: &#39;bool&#39;;
+<span class="linenos"> 57</span>BIT: &#39;bit&#39;;
+<span class="linenos"> 58</span>INT: &#39;int&#39;;
+<span class="linenos"> 59</span>UINT: &#39;uint&#39;;
+<span class="linenos"> 60</span>FLOAT: &#39;float&#39;;
+<span class="linenos"> 61</span>ANGLE: &#39;angle&#39;;
+<span class="linenos"> 62</span>COMPLEX: &#39;complex&#39;;
+<span class="linenos"> 63</span>ARRAY: &#39;array&#39;;
+<span class="linenos"> 64</span>VOID: &#39;void&#39;;
+<span class="linenos"> 65</span>
+<span class="linenos"> 66</span>DURATION:  &#39;duration&#39;;
+<span class="linenos"> 67</span>STRETCH: &#39;stretch&#39;;
+<span class="linenos"> 68</span>
+<span class="linenos"> 69</span>
+<span class="linenos"> 70</span>/* Builtin identifiers and operations */
+<span class="linenos"> 71</span>
+<span class="linenos"> 72</span>GPHASE: &#39;gphase&#39;;
+<span class="linenos"> 73</span>INV: &#39;inv&#39;;
+<span class="linenos"> 74</span>POW: &#39;pow&#39;;
+<span class="linenos"> 75</span>CTRL: &#39;ctrl&#39;;
+<span class="linenos"> 76</span>NEGCTRL: &#39;negctrl&#39;;
+<span class="linenos"> 77</span>
+<span class="linenos"> 78</span>DIM: &#39;#dim&#39;;
+<span class="linenos"> 79</span>
+<span class="linenos"> 80</span>DURATIONOF: &#39;durationof&#39;;
+<span class="linenos"> 81</span>
+<span class="linenos"> 82</span>DELAY: &#39;delay&#39;;
+<span class="linenos"> 83</span>RESET: &#39;reset&#39;;
+<span class="linenos"> 84</span>MEASURE: &#39;measure&#39;;
+<span class="linenos"> 85</span>BARRIER: &#39;barrier&#39;;
+<span class="linenos"> 86</span>
+<span class="linenos"> 87</span>BooleanLiteral: &#39;true&#39; | &#39;false&#39;;
+<span class="linenos"> 88</span>
+<span class="linenos"> 89</span>
+<span class="linenos"> 90</span>/* Symbols */
+<span class="linenos"> 91</span>
+<span class="linenos"> 92</span>LBRACKET: &#39;[&#39;;
+<span class="linenos"> 93</span>RBRACKET: &#39;]&#39;;
+<span class="linenos"> 94</span>LBRACE: &#39;{&#39;;
+<span class="linenos"> 95</span>RBRACE: &#39;}&#39;;
+<span class="linenos"> 96</span>LPAREN: &#39;(&#39;;
+<span class="linenos"> 97</span>RPAREN: &#39;)&#39;;
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span>COLON: &#39;:&#39;;
+<span class="linenos">100</span>SEMICOLON: &#39;;&#39;;
+<span class="linenos">101</span>
+<span class="linenos">102</span>DOT: &#39;.&#39;;
+<span class="linenos">103</span>COMMA: &#39;,&#39;;
+<span class="linenos">104</span>
+<span class="linenos">105</span>EQUALS: &#39;=&#39;;
+<span class="linenos">106</span>ARROW: &#39;-&gt;&#39;;
+<span class="linenos">107</span>PLUS: &#39;+&#39;;
+<span class="linenos">108</span>DOUBLE_PLUS: &#39;++&#39;;
+<span class="linenos">109</span>MINUS: &#39;-&#39;;
+<span class="linenos">110</span>ASTERISK: &#39;*&#39;;
+<span class="linenos">111</span>DOUBLE_ASTERISK: &#39;**&#39;;
+<span class="linenos">112</span>SLASH: &#39;/&#39;;
+<span class="linenos">113</span>PERCENT: &#39;%&#39;;
+<span class="linenos">114</span>PIPE: &#39;|&#39;;
+<span class="linenos">115</span>DOUBLE_PIPE: &#39;||&#39;;
+<span class="linenos">116</span>AMPERSAND: &#39;&amp;&#39;;
+<span class="linenos">117</span>DOUBLE_AMPERSAND: &#39;&amp;&amp;&#39;;
+<span class="linenos">118</span>CARET: &#39;^&#39;;
+<span class="linenos">119</span>AT: &#39;@&#39;;
+<span class="linenos">120</span>TILDE: &#39;~&#39;;
+<span class="linenos">121</span>EXCLAMATION_POINT: &#39;!&#39;;
+<span class="linenos">122</span>
+<span class="linenos">123</span>EqualityOperator: &#39;==&#39; | &#39;!=&#39;;
+<span class="linenos">124</span>CompoundAssignmentOperator: &#39;+=&#39; | &#39;-=&#39; | &#39;*=&#39; | &#39;/=&#39; | &#39;&amp;=&#39; | &#39;|=&#39; | &#39;~=&#39; | &#39;^=&#39; | &#39;&lt;&lt;=&#39; | &#39;&gt;&gt;=&#39; | &#39;%=&#39; | &#39;**=&#39;;
+<span class="linenos">125</span>ComparisonOperator: &#39;&gt;&#39; | &#39;&lt;&#39; | &#39;&gt;=&#39; | &#39;&lt;=&#39;;
+<span class="linenos">126</span>BitshiftOperator: &#39;&gt;&gt;&#39; | &#39;&lt;&lt;&#39;;
+<span class="linenos">127</span>
+<span class="linenos">128</span>IMAG: &#39;im&#39;;
+<span class="linenos">129</span>ImaginaryLiteral: (DecimalIntegerLiteral | FloatLiteral) [ \t]* IMAG;
+<span class="linenos">130</span>
+<span class="linenos">131</span>BinaryIntegerLiteral: (&#39;0b&#39; | &#39;0B&#39;) ([01] &#39;_&#39;?)* [01];
+<span class="linenos">132</span>OctalIntegerLiteral: &#39;0o&#39; ([0-7] &#39;_&#39;?)* [0-7];
+<span class="linenos">133</span>DecimalIntegerLiteral: ([0-9] &#39;_&#39;?)* [0-9];
+<span class="linenos">134</span>HexIntegerLiteral: (&#39;0x&#39; | &#39;0X&#39;) ([0-9a-fA-F] &#39;_&#39;?)* [0-9a-fA-F];
+<span class="linenos">135</span>
+<span class="linenos">136</span>fragment ValidUnicode: [\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}]; // valid unicode chars
+<span class="linenos">137</span>fragment Letter: [A-Za-z];
+<span class="linenos">138</span>fragment FirstIdCharacter: &#39;_&#39; | ValidUnicode | Letter;
+<span class="linenos">139</span>fragment GeneralIdCharacter: FirstIdCharacter | [0-9];
+<span class="linenos">140</span>
+<span class="linenos">141</span>Identifier: FirstIdCharacter GeneralIdCharacter*;
+<span class="linenos">142</span>HardwareQubit: &#39;$&#39; [0-9]+;
+<span class="linenos">143</span>
+<span class="linenos">144</span>fragment FloatLiteralExponent: [eE] (PLUS | MINUS)? DecimalIntegerLiteral;
+<span class="linenos">145</span>FloatLiteral:
+<span class="linenos">146</span>    // 1_123e-3, 123e+4 or 123E5 (needs the exponent or it&#39;s just an integer)
+<span class="linenos">147</span>    DecimalIntegerLiteral FloatLiteralExponent
+<span class="linenos">148</span>    // .1234_5678 or .1e3 (no digits before the dot)
+<span class="linenos">149</span>    | DOT DecimalIntegerLiteral FloatLiteralExponent?
+<span class="linenos">150</span>    // 123.456, 123. or 145.32e+1_00
+<span class="linenos">151</span>    | DecimalIntegerLiteral DOT DecimalIntegerLiteral? FloatLiteralExponent?;
+<span class="linenos">152</span>
+<span class="linenos">153</span>fragment TimeUnit: &#39;dt&#39; | &#39;ns&#39; | &#39;us&#39; | &#39;µs&#39; | &#39;ms&#39; | &#39;s&#39;;
+<span class="linenos">154</span>// represents explicit time value in SI or backend units
+<span class="linenos">155</span>TimingLiteral: (DecimalIntegerLiteral | FloatLiteral) [ \t]* TimeUnit;
+<span class="linenos">156</span>
+<span class="linenos">157</span>BitstringLiteral: &#39;&quot;&#39; ([01] &#39;_&#39;?)* [01] &#39;&quot;&#39;;
+<span class="linenos">158</span>
+<span class="linenos">159</span>// Ignore whitespace between tokens, and define C++-style comments.
+<span class="linenos">160</span>Whitespace: [ \t]+ -&gt; skip ;
+<span class="linenos">161</span>Newline: [\r\n]+ -&gt; skip ;
+<span class="linenos">162</span>LineComment : &#39;//&#39; ~[\r\n]* -&gt; skip;
+<span class="linenos">163</span>BlockComment : &#39;/*&#39; .*? &#39;*/&#39; -&gt; skip;
+<span class="linenos">164</span>
+<span class="linenos">165</span>
+<span class="linenos">166</span>// The version identifier token would be ambiguous between itself and
+<span class="linenos">167</span>// integer/floating-point literals, so we use a special mode to ensure it&#39;s
+<span class="linenos">168</span>// lexed correctly.
+<span class="linenos">169</span>mode VERSION_IDENTIFIER;
+<span class="linenos">170</span>    VERSION_IDENTIFER_WHITESPACE: [ \t\r\n]+ -&gt; skip;
+<span class="linenos">171</span>    VersionSpecifier: [0-9]+ (&#39;.&#39; [0-9]+)? -&gt; popMode;
+<span class="linenos">172</span>
+<span class="linenos">173</span>// An include statement&#39;s path or defcalgrammar target is potentially ambiguous
+<span class="linenos">174</span>// with `BitstringLiteral`.
+<span class="linenos">175</span>mode ARBITRARY_STRING;
+<span class="linenos">176</span>    ARBITRARY_STRING_WHITESPACE: [ \t\r\n]+ -&gt; skip;
+<span class="linenos">177</span>    // allow ``&quot;str&quot;`` and ``&#39;str&#39;``;
+<span class="linenos">178</span>    StringLiteral: (&#39;&quot;&#39; ~[&quot;\r\t\n]+? &#39;&quot;&#39; | &#39;\&#39;&#39; ~[&#39;\r\t\n]+? &#39;\&#39;&#39;) -&gt; popMode;
+<span class="linenos">179</span>
+<span class="linenos">180</span>
+<span class="linenos">181</span>// A different lexer mode to swap to when we need handle tokens on a line basis
+<span class="linenos">182</span>// rather than the default arbitrary-whitespace-based tokenisation.  This is
+<span class="linenos">183</span>// used by the annotation and pragma rules.
+<span class="linenos">184</span>mode EAT_TO_LINE_END;
+<span class="linenos">185</span>    EAT_INITIAL_SPACE: [ \t]+ -&gt; skip;
+<span class="linenos">186</span>    EAT_LINE_END: [\r\n] -&gt; popMode, skip;
+<span class="linenos">187</span>
+<span class="linenos">188</span>    // The line content must be a non-empty token to satisfy ANTLR (otherwise it
+<span class="linenos">189</span>    // would be able to produce an infinite number of tokens).  We could include
+<span class="linenos">190</span>    // the line ending to guarantee that this is always non-empty, but that just
+<span class="linenos">191</span>    // puts an annoying burden on consumers to remove it again.
+<span class="linenos">192</span>    RemainingLineContent: ~[ \t\r\n] ~[\r\n]*;
+<span class="linenos">193</span>
+<span class="linenos">194</span>
+<span class="linenos">195</span>// We need to do a little context-aware lexing when we hit a `cal` or `defcal`
+<span class="linenos">196</span>// token.  In both cases, there&#39;s a small interlude before the pulse grammar
+<span class="linenos">197</span>// block starts, and we need to be able to lex our way through that.  We don&#39;t
+<span class="linenos">198</span>// want to tie this grammar to one host language by injecting host code to
+<span class="linenos">199</span>// manage the state of the lexer, so instead we need to do a little duplication
+<span class="linenos">200</span>// of the tokens, because ANTLR doesn&#39;t allow us to inherit rules directly.
+<span class="linenos">201</span>mode CAL_PRELUDE;
+<span class="linenos">202</span>    CAL_PRELUDE_WHITESPACE: [ \t\r\n]+ -&gt; skip;
+<span class="linenos">203</span>    CAL_PRELUDE_COMMENT: (LineComment | BlockComment) -&gt; skip;
+<span class="linenos">204</span>    CAL_PRELUDE_LBRACE: LBRACE -&gt; type(LBRACE), mode(CAL_BLOCK);
+<span class="linenos">205</span>
+<span class="linenos">206</span>mode DEFCAL_PRELUDE;
+<span class="linenos">207</span>    DEFCAL_PRELUDE_WHITESPACE: [ \t\r\n]+ -&gt; skip;
+<span class="linenos">208</span>    DEFCAL_PRELUDE_COMMENT: (LineComment | BlockComment) -&gt; skip;
+<span class="linenos">209</span>    DEFCAL_PRELUDE_LBRACE: LBRACE -&gt; type(LBRACE), mode(CAL_BLOCK);
+<span class="linenos">210</span>
+<span class="linenos">211</span>    // Duplications of valid constant expression tokens that may appear in the
+<span class="linenos">212</span>    // argument list.  This is an unfortunately large number of duplications.
+<span class="linenos">213</span>
+<span class="linenos">214</span>    // Types.
+<span class="linenos">215</span>    DEFCAL_PRELUDE_QREG: QREG -&gt; type(QREG);
+<span class="linenos">216</span>    DEFCAL_PRELUDE_QUBIT: QUBIT -&gt; type(QUBIT);
+<span class="linenos">217</span>    DEFCAL_PRELUDE_CREG: CREG -&gt; type(CREG);
+<span class="linenos">218</span>    DEFCAL_PRELUDE_BOOL: BOOL -&gt; type(BOOL);
+<span class="linenos">219</span>    DEFCAL_PRELUDE_BIT: BIT -&gt; type(BIT);
+<span class="linenos">220</span>    DEFCAL_PRELUDE_INT: INT -&gt; type(INT);
+<span class="linenos">221</span>    DEFCAL_PRELUDE_UINT: UINT -&gt; type(UINT);
+<span class="linenos">222</span>    DEFCAL_PRELUDE_ANGLE: ANGLE -&gt; type(ANGLE);
+<span class="linenos">223</span>    DEFCAL_PRELUDE_FLOAT: FLOAT -&gt; type(FLOAT);
+<span class="linenos">224</span>    DEFCAL_PRELUDE_COMPLEX: COMPLEX -&gt; type(COMPLEX);
+<span class="linenos">225</span>    DEFCAL_PRELUDE_ARRAY: ARRAY -&gt; type(ARRAY);
+<span class="linenos">226</span>    DEFCAL_PRELUDE_DURATION: DURATION -&gt; type(DURATION);
+<span class="linenos">227</span>    // Punctuation.
+<span class="linenos">228</span>    DEFCAL_PRELUDE_LBRACKET: LBRACKET -&gt; type(LBRACKET);
+<span class="linenos">229</span>    DEFCAL_PRELUDE_RBRACKET: RBRACKET -&gt; type(RBRACKET);
+<span class="linenos">230</span>    DEFCAL_PRELUDE_LPAREN: LPAREN -&gt; type(LPAREN);
+<span class="linenos">231</span>    DEFCAL_PRELUDE_RPAREN: RPAREN -&gt; type(RPAREN);
+<span class="linenos">232</span>    DEFCAL_PRELUDE_ARROW: ARROW -&gt; type(ARROW);
+<span class="linenos">233</span>    DEFCAL_PRELUDE_COMMA: COMMA -&gt; type(COMMA);
+<span class="linenos">234</span>    DEFCAL_PRELUDE_PLUS: PLUS -&gt; type(PLUS);
+<span class="linenos">235</span>    DEFCAL_PRELUDE_MINUS: MINUS -&gt; type(MINUS);
+<span class="linenos">236</span>    DEFCAL_PRELUDE_ASTERISK: ASTERISK -&gt; type(ASTERISK);
+<span class="linenos">237</span>    DEFCAL_PRELUDE_SLASH: SLASH -&gt; type(SLASH);
+<span class="linenos">238</span>    DEFCAL_PRELUDE_BitshiftOperator: BitshiftOperator -&gt; type(BitshiftOperator);
+<span class="linenos">239</span>    // Literals and names.
+<span class="linenos">240</span>    DEFCAL_PRELUDE_BitstringLiteral: BitstringLiteral -&gt; type(BitstringLiteral);
+<span class="linenos">241</span>    DEFCAL_PRELUDE_BinaryIntegerLiteral: BinaryIntegerLiteral -&gt; type(BinaryIntegerLiteral);
+<span class="linenos">242</span>    DEFCAL_PRELUDE_OctalIntegerLiteral: OctalIntegerLiteral -&gt; type(OctalIntegerLiteral);
+<span class="linenos">243</span>    DEFCAL_PRELUDE_DecimalIntegerLiteral: DecimalIntegerLiteral -&gt; type(DecimalIntegerLiteral);
+<span class="linenos">244</span>    DEFCAL_PRELUDE_HexIntegerLiteral: HexIntegerLiteral -&gt; type(HexIntegerLiteral);
+<span class="linenos">245</span>    DEFCAL_PRELUDE_FloatLiteral: FloatLiteral -&gt; type(FloatLiteral);
+<span class="linenos">246</span>    DEFCAL_PRELUDE_MEASURE: MEASURE -&gt; type(MEASURE);
+<span class="linenos">247</span>    DEFCAL_PRELUDE_DELAY: DELAY -&gt; type(DELAY);
+<span class="linenos">248</span>    DEFCAL_PRELUDE_RESET: RESET -&gt; type(RESET);
+<span class="linenos">249</span>    DEFCAL_PRELUDE_Identifier: Identifier -&gt; type(Identifier);
+<span class="linenos">250</span>    DEFCAL_PRELUDE_HardwareQubit: HardwareQubit -&gt; type(HardwareQubit);
+<span class="linenos">251</span>
+<span class="linenos">252</span>
+<span class="linenos">253</span>// The meat-and-potatoes of matching a calibration block with balanced inner
+<span class="linenos">254</span>// braces.  We enter `CAL_BLOCK` with the opening brace already tokenised
+<span class="linenos">255</span>// (that&#39;s how the lexer knew to swap modes to us), and with the token left open
+<span class="linenos">256</span>// to continue to accumulate.  We want to tokenise until we hit the balancing
+<span class="linenos">257</span>// brace.  Since we have _no_ knowledge of what the inner langauge is doing,
+<span class="linenos">258</span>// things like unbalanced braces in comments will cause a failure, but there&#39;s
+<span class="linenos">259</span>// not much we can do about that without greater spec restrictions.
+<span class="linenos">260</span>mode CAL_BLOCK;
+<span class="linenos">261</span>    fragment NestedCalibrationBlock: LBRACE (NestedCalibrationBlock | ~[{}])* RBRACE;
+<span class="linenos">262</span>    CalibrationBlock: (NestedCalibrationBlock | ~[{}])+;
+<span class="linenos">263</span>    CAL_BLOCK_RBRACE: RBRACE -&gt; type(RBRACE), mode(DEFAULT_MODE);
+</pre></div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">OpenQASM Live Specification</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../language/index.html">Language</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OpenQasm 3.0 Grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="/index.html">Live Version</a></li>
+    
+    <li class="toctree-l1"><a href="/versions/3.1/index.html">Version 3.1</a></li>
+    
+    <li class="toctree-l1"><a href="/versions/3.0/index.html">Version 3.0</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../language/openpulse.html" title="previous chapter">OpenPulse Grammar</a></li>
+      <li>Next: <a href="../release_notes.html" title="next chapter">Release Notes</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017-2023, Andrew W. Cross, Lev S. Bishop, John A. Smolin, Jay M. Gambetta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/grammar/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

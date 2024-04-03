@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Release Notes &#8212; OpenQASM Live Specification  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="_static/colors.css?v=3aae764c" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="OpenQasm 3.0 Grammar" href="grammar/index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="release-notes">
+<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this heading">¶</a></h1>
+<section id="ast-py-v0-5-0-28">
+<span id="release-notes-ast-py-v0-5-0-28"></span><h2>ast-py/v0.5.0-28<a class="headerlink" href="#ast-py-v0-5-0-28" title="Permalink to this heading">¶</a></h2>
+<section id="new-features">
+<span id="release-notes-ast-py-v0-5-0-28-new-features"></span><h3>New Features<a class="headerlink" href="#new-features" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Added CI support for ensuring contributions include a release note.
+If this is not desired for a PR the tag “no-reno” may be added to the
+PR.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Added <cite>openqasm3.spec.supported_versions</cite> which lists the OpenQASM specification
+versions supported by the <cite>openqasm3</cite> package. Currently the supported versions
+are 3.0 and 3.1. In future, additional information on the supported specifications
+may be added to <cite>openqasm3.spec</cite>.</p></li>
+</ul>
+</section>
+<section id="upgrade-notes">
+<span id="release-notes-ast-py-v0-5-0-28-upgrade-notes"></span><h3>Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Improve physical qubit documentation. Define what constitutes a valid
+physical identifier, define physical circuits, and answer several questions
+about what a compiler may do with physical qubits.</p></li>
+</ul>
+</section>
+<section id="other-notes">
+<span id="release-notes-ast-py-v0-5-0-28-other-notes"></span><h3>Other Notes<a class="headerlink" href="#other-notes" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The keywords <code class="docutils literal notranslate"><span class="pre">switch</span></code>, <code class="docutils literal notranslate"><span class="pre">case</span></code>, and <code class="docutils literal notranslate"><span class="pre">default</span></code> are no longer reserved
+by the spec for future expansion of the language.</p></li>
+</ul>
+</section>
+</section>
+<section id="ast-py-v0-4-0">
+<span id="release-notes-ast-py-v0-4-0"></span><h2>ast-py/v0.4.0<a class="headerlink" href="#ast-py-v0-4-0" title="Permalink to this heading">¶</a></h2>
+<section id="release-notes-ast-py-v0-4-0-upgrade-notes">
+<span id="id1"></span><h3>Upgrade Notes<a class="headerlink" href="#release-notes-ast-py-v0-4-0-upgrade-notes" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The “wildcard” identifiers in pulse grammars are now regular OpenQASM 3
+identifiers, without the leading dollar sign (<code class="docutils literal notranslate"><span class="pre">$</span></code>), <em>e.g.</em> what was <code class="docutils literal notranslate"><span class="pre">$q</span></code>
+before is now simply <code class="docutils literal notranslate"><span class="pre">q</span></code>.  Precise hardware qubits are still referenced
+as <code class="docutils literal notranslate"><span class="pre">$0</span></code>, for example.  This was made for better consistency in identifiers;
+having the dollar sign in the wildcard carried no information, since it
+applied to any qubit already.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">OpenQASM Live Specification</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="language/index.html">Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grammar/index.html">OpenQasm 3.0 Grammar</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ast-py-v0-5-0-28">ast-py/v0.5.0-28</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upgrade-notes">Upgrade Notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-notes">Other Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ast-py-v0-4-0">ast-py/v0.4.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#release-notes-ast-py-v0-4-0-upgrade-notes">Upgrade Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="/index.html">Live Version</a></li>
+    
+    <li class="toctree-l1"><a href="/versions/3.1/index.html">Version 3.1</a></li>
+    
+    <li class="toctree-l1"><a href="/versions/3.0/index.html">Version 3.0</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="grammar/index.html" title="previous chapter">OpenQasm 3.0 Grammar</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017-2023, Andrew W. Cross, Lev S. Bishop, John A. Smolin, Jay M. Gambetta.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/release_notes.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
