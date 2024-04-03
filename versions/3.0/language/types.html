@@ -910,7 +910,9 @@ should be explicitly declared and assigned the concatenation.</p>
 <span class="nf">subroutine_call</span><span class="p">(</span><span class="n">selfConcat</span><span class="p">)</span><span class="w"> </span><span class="c1">// allowed</span>
 </pre></div>
 </div>
-<p>Arrays can be sliced just like quantum registers using index sets. Slicing uses
+<p>Arrays can be sliced just like quantum registers using a range <code class="docutils literal notranslate"><span class="pre">a:b:c</span></code>
+and can be indexed using an integer but cannot be indexed by a a comma-separated
+list of integers contained in braces <code class="docutils literal notranslate"><span class="pre">{a,b,c,…}</span></code>. Slicing uses
 the subscript operator <code class="docutils literal notranslate"><span class="pre">[]</span></code>, but produces an array (or reference in the case
 of assignment) with the same number of dimensions as the given identifier.
 Array slicing is syntactic sugar for concisely expressing for loops over
@@ -1213,11 +1215,18 @@ dividing a duration by a duration produces a machine-precision <code class="docu
 <li class="toctree-l1"><a class="reference internal" href="../grammar/index.html">OpenQasm 3.0 Grammar</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">All Versions</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="https://openqasm.github.io/index.html">Live</a></li>
-</ul>
 
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="/index.html">Live Version</a></li>
+    
+    <li class="toctree-l1"><a href="/versions/3.1/index.html">Version 3.1</a></li>
+    
+    <li class="toctree-l1"><a href="/versions/3.0/index.html">Version 3.0</a></li>
+    
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
