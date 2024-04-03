@@ -1,18 +1,17 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Types and Casting &#8212; OpenQASM Live Specification  documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/colors.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/colors.css?v=3aae764c" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -128,24 +127,57 @@ Qubits cannot be declared within gates or subroutines. This simplifies OpenQASM
 significantly since there is no need for quantum memory management.
 However, it also means that users or compiler have to explicitly manage
 the quantum memory.</p>
-</section>
-<section id="physical-qubits">
-<h3>Physical Qubits<a class="headerlink" href="#physical-qubits" title="Permalink to this heading">¶</a></h3>
-<p>While program qubits can be named, hardware qubits are referenced only
-by the syntax <code class="docutils literal notranslate"><span class="pre">$[NUM]</span></code>. For an <code class="docutils literal notranslate"><span class="pre">n</span></code> qubit system, we have physical qubit
-references given by <code class="docutils literal notranslate"><span class="pre">$0</span></code>, <code class="docutils literal notranslate"><span class="pre">$1</span></code>, …, <code class="docutils literal notranslate"><span class="pre">$n-1</span></code>. These qubit types are
-used in lower parts of the compilation stack when emitting physical
-circuits. Physical qubits must not be declared and they are, as all the qubits, global variables.</p>
 <div class="highlight-qasm3 notranslate"><div class="highlight"><pre><span></span><span class="c1">// Declare a qubit</span>
 <span class="kt">qubit</span><span class="w"> </span><span class="n">gamma</span><span class="p">;</span>
 <span class="c1">// Declare a qubit with a Unicode name</span>
 <span class="kt">qubit</span><span class="w"> </span><span class="n">γ</span><span class="p">;</span>
 <span class="c1">// Declare a qubit register with 20 qubits</span>
 <span class="kt">qubit</span><span class="p">[</span><span class="m">20</span><span class="p">]</span><span class="w"> </span><span class="n">qubit_array</span><span class="p">;</span>
-<span class="c1">// CNOT gate between physical qubits 0 and 1</span>
-<span class="n">CX</span><span class="w"> </span><span class="l">$0</span><span class="p">,</span><span class="w"> </span><span class="l">$1</span><span class="p">;</span>
 </pre></div>
 </div>
+</section>
+<section id="physical-qubits">
+<span id="id4"></span><h3>Physical Qubits<a class="headerlink" href="#physical-qubits" title="Permalink to this heading">¶</a></h3>
+<p>Physical qubits refer to particular hardware qubits. Therefore, they are only fully defined with
+respect to a target device that has a published device topology. The hardware provider determines
+the integer-labels associated with each qubit within the device’s topology.</p>
+<p>While virtual qubits can be named, hardware qubits are referenced by the syntax <code class="docutils literal notranslate"><span class="pre">$[NUM]</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">NUM</span></code> is a non-negative integer. Any integer included in the published device topology is a valid
+physical qubit identifier. Note that this implies that physical qubit identifier indices may be
+non-consecutive, depending on the device.</p>
+<p>Like virtual qubits, physical qubits are global variables, but unlike virtual qubits, they must
+not be declared.</p>
+<p>Qubit parameters in a <code class="docutils literal notranslate"><span class="pre">defcal</span></code> declaration must be physical qubits. Calibrations are valid only
+for a particular set of physical qubits. See also <a class="reference internal" href="pulses.html#pulse-gates"><span class="std std-ref">pulse gates</span></a>.</p>
+<p>Physical qubits cannot be used in <code class="docutils literal notranslate"><span class="pre">gate</span></code> statements. See also
+<a class="reference internal" href="gates.html#gate-statement"><span class="std std-ref">gate definitions</span></a>.</p>
+<p>Physical qubits are also used in lower parts of the compilation stack when emitting physical
+circuits. A physical circuit is one which only references physical qubits, and every operation
+used in the circuit has an associated <code class="docutils literal notranslate"><span class="pre">defcal</span></code>, which we refer to as hardware-native gates and
+measurements.</p>
+<div class="highlight-qasm3 notranslate"><div class="highlight"><pre><span></span><span class="c1">// CNOT gate between physical qubits 0 and 1</span>
+<span class="n">CX</span><span class="w"> </span><span class="l">$0</span><span class="p">,</span><span class="w"> </span><span class="l">$1</span><span class="p">;</span>
+<span class="c1">// Define the pulse-level instruction sequence for ``h`` on physical qubit 0</span>
+<span class="kd">defcal</span><span class="w"> </span><span class="nf">h</span><span class="w"> </span><span class="l">$0</span><span class="w"> </span><span class="p">{</span><span class="x"> ... </span><span class="p">}</span>
+</pre></div>
+</div>
+<section id="physical-qubit-constraints">
+<h4>Physical qubit constraints<a class="headerlink" href="#physical-qubit-constraints" title="Permalink to this heading">¶</a></h4>
+<p>Physical qubits, by definition, reference particular hardware qubits. Circuit equivalence does not
+hold over permutations of physical qubit labels. Thus, physical qubits cannot be remapped by a
+compiler or hardware provider without opt-in from the programmer.</p>
+<p>Note that while physical circuits require physical qubits, the converse need not be true. A circuit
+that would require routing or gate decomposition to run (i.e., does not have a <code class="docutils literal notranslate"><span class="pre">defcal</span></code> for every
+operation in the circuit) would by definition not be a physical circuit. However, physical qubits
+can still be used in such circuits.</p>
+<p>For example, a program defines the <code class="docutils literal notranslate"><span class="pre">H</span></code> gate with the <code class="docutils literal notranslate"><span class="pre">gate</span></code> statement, without a corresponding
+<code class="docutils literal notranslate"><span class="pre">defcal</span></code> of <code class="docutils literal notranslate"><span class="pre">H</span></code>. <code class="docutils literal notranslate"><span class="pre">H</span></code> is therefore a supported gate, but not a hardware-native gate. The
+compiler can decompose the statement <code class="docutils literal notranslate"><span class="pre">H</span> <span class="pre">$0;</span></code> to hardware-native gates, while still respecting
+strict qubit mapping.</p>
+<p>It is possible to write a partially-constrained program with both physical and virtual qubits.
+Such programs are also non-physical circuits, and may or may not be supported by compilers or
+hardware providers.</p>
+</section>
 </section>
 </section>
 <section id="classical-scalar-types">
@@ -216,7 +248,7 @@ types for the purposes of casting.</p>
 </div>
 </section>
 <section id="void-type">
-<span id="id4"></span><h3>Void type<a class="headerlink" href="#void-type" title="Permalink to this heading">¶</a></h3>
+<span id="id5"></span><h3>Void type<a class="headerlink" href="#void-type" title="Permalink to this heading">¶</a></h3>
 <p>Subroutines and externs that do not return a value implicitly return <code class="docutils literal notranslate"><span class="pre">void</span></code>.
 The <code class="docutils literal notranslate"><span class="pre">void</span></code> type is unrealizable and uninstantiable, and thus cannot be
 attached to an identifier or used as a cast operator. The keyword <code class="docutils literal notranslate"><span class="pre">void</span></code> is
@@ -283,9 +315,9 @@ imaginary components.  Each component behaves as a <code class="docutils literal
 designator <code class="docutils literal notranslate"><span class="pre">[size]</span></code> can be omitted to use the default hardware <code class="docutils literal notranslate"><span class="pre">float</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">complex</span></code> with no arguments is a synonym for <code class="docutils literal notranslate"><span class="pre">complex[float]</span></code>.</p>
 <p>Imaginary literals are written as a decimal-integer or floating-point literal
-followed by the letters <code class="docutils literal notranslate"><span class="pre">im</span></code>.  There may be zero or more spaces between the
-numeric component and the <code class="docutils literal notranslate"><span class="pre">im</span></code> component.  The type of this token is
-<code class="docutils literal notranslate"><span class="pre">complex</span></code> (its value has zero real component), and the component type is as
+followed by the letters <code class="docutils literal notranslate"><span class="pre">im</span></code>.  There may be zero or more spaces or tabs
+between the numeric component and the <code class="docutils literal notranslate"><span class="pre">im</span></code> component.  The type of this token
+is <code class="docutils literal notranslate"><span class="pre">complex</span></code> (its value has zero real component), and the component type is as
 normal given the floating-point literal, or the machine-size <code class="docutils literal notranslate"><span class="pre">float</span></code> if the
 numeric component is an integer.</p>
 <p>The real and imaginary components of a complex number can be extracted using the
@@ -438,8 +470,8 @@ mathematical constants <span class="math notranslate nohighlight">\(\pi\)</span>
 <span class="math notranslate nohighlight">\(e\)</span>.  Each of these values has one ASCII-only identifier and one
 single-Unicode-character identifier.</p>
 <div class="docutils container" id="tab-real-constants">
-<table class="docutils align-default" id="id5">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">[tab:real-constants] Built-in real constants in OpenQASM3 of type <code class="docutils literal notranslate"><span class="pre">float[64]</span></code>.</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">[tab:real-constants] Built-in real constants in OpenQASM3 of type <code class="docutils literal notranslate"><span class="pre">float[64]</span></code>.</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Constant</p></th>
 <th class="head"><p>ASCII</p></th>
@@ -478,8 +510,8 @@ inputs of these functions.</p>
 compiler and hardware documentation for details.</p>
 </div>
 <div class="docutils container" id="tab-built-in-math">
-<table class="docutils align-default" id="id6">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Built-in mathematical functions in OpenQASM3.</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Built-in mathematical functions in OpenQASM3.</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
 <th class="head"><p>Input Range/Type, […]</p></th>
@@ -731,11 +763,22 @@ can be accessed, using the following general syntax:</p>
 <span class="n">multiDim</span><span class="p">[</span><span class="o">-</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"> </span><span class="c1">// multiDim == {{0.0, 1.2}, {2.1, 2.2}, {3.1, 0.0}}</span>
 </pre></div>
 </div>
-<p>The first argument to the <code class="docutils literal notranslate"><span class="pre">array</span></code> type constructor is the base type
+<p>The first argument to the <code class="docutils literal notranslate"><span class="pre">array</span></code> declaration is the base type
 of the array. The supported classical types include various sizes of <code class="docutils literal notranslate"><span class="pre">bit</span></code>,
 <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">uint</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">complex</span></code>, and <code class="docutils literal notranslate"><span class="pre">angle</span></code>, as well as
 <code class="docutils literal notranslate"><span class="pre">bool</span></code> and <code class="docutils literal notranslate"><span class="pre">duration</span></code>. Note that <code class="docutils literal notranslate"><span class="pre">stretch</span></code> is not a valid array
 base type.</p>
+<p>Arrays cannot be resized or reshaped. Arrays are statically typed, and cannot
+implicitly convert to or from any other type.</p>
+<p>The size of an array is constant and immutable, and is recorded once, at
+declaration time.</p>
+<p>Array declarations allocate memory of suitable size and alignment to
+accommodate the storage of its elements.</p>
+<p>If the array declaration is direct-initialized via initializer list, its elements
+are initialized to the values provided by the initializer list.  Otherwise, the
+memory allocated is not initialized, and that memory’s content is undefined.</p>
+<p>Arrays may be passed as parameters or arguments to functions.</p>
+<p>When an array, or slice of an array, is passed as argument to a function, the behavior accords to that described in <a class="reference internal" href="subroutines.html#arrays-in-subroutines"><span class="std std-ref">Arrays in subroutines</span></a>.</p>
 <p>Arrays <em>cannot</em> be declared inside the body of a function or gate. All arrays
 <em>must</em> be declared within the global scope of the program.
 Indexing of arrays is n-based <em>i.e.</em>, negative indices are allowed.
@@ -794,13 +837,14 @@ intent.</p>
 </section>
 <section id="aliasing">
 <h2>Aliasing<a class="headerlink" href="#aliasing" title="Permalink to this heading">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">let</span></code> keyword allows quantum bits and registers to be referred to by
+<p>The <code class="docutils literal notranslate"><span class="pre">let</span></code> keyword allows declared quantum bits and registers to be referred to by
 another name as long as the alias is in scope.</p>
 <div class="highlight-qasm3 notranslate"><div class="highlight"><pre><span></span><span class="kt">qubit</span><span class="p">[</span><span class="m">5</span><span class="p">]</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
 <span class="c1">// myreg[0] refers to the qubit q[1]</span>
 <span class="kd">let</span><span class="w"> </span><span class="n">myreg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q</span><span class="p">[</span><span class="m">1</span><span class="p">:</span><span class="m">4</span><span class="p">];</span>
 </pre></div>
 </div>
+<p>Note that <a class="reference internal" href="#physical-qubits"><span class="std std-ref">physical qubits</span></a> are not declared and so cannot be aliased.</p>
 </section>
 <section id="index-sets-and-slicing">
 <h2>Index sets and slicing<a class="headerlink" href="#index-sets-and-slicing" title="Permalink to this heading">¶</a></h2>
@@ -911,7 +955,9 @@ should be explicitly declared and assigned the concatenation.</p>
 <span class="nf">subroutine_call</span><span class="p">(</span><span class="n">selfConcat</span><span class="p">)</span><span class="w"> </span><span class="c1">// allowed</span>
 </pre></div>
 </div>
-<p>Arrays can be sliced just like quantum registers using index sets. Slicing uses
+<p>Arrays can be sliced just like quantum registers using a range <code class="docutils literal notranslate"><span class="pre">a:b:c</span></code>
+and can be indexed using an integer but cannot be indexed by a a comma-separated
+list of integers contained in braces <code class="docutils literal notranslate"><span class="pre">{a,b,c,…}</span></code>. Slicing uses
 the subscript operator <code class="docutils literal notranslate"><span class="pre">[]</span></code>, but produces an array (or reference in the case
 of assignment) with the same number of dimensions as the given identifier.
 Array slicing is syntactic sugar for concisely expressing for loops over
@@ -1223,6 +1269,8 @@ dividing a duration by a duration produces a machine-precision <code class="docu
     
     <li class="toctree-l1"><a href="/versions/3.1/index.html">Version 3.1</a></li>
     
+    <li class="toctree-l1"><a href="/versions/3.0/index.html">Version 3.0</a></li>
+    
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -1261,7 +1309,7 @@ dividing a duration by a duration produces a machine-precision <code class="docu
       &copy;2017-2023, Andrew W. Cross, Lev S. Bishop, John A. Smolin, Jay M. Gambetta.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
